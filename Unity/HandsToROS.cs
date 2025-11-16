@@ -17,11 +17,11 @@ public class HandToROS : MonoBehaviour
     void Update()
     {
 
-        if (!visualizer.leftHandTracked && !visualizer.rightHandTracked)
+        if (!visualizer.rightHandTracked)
           return;
 
         var rootJson = new JSONObject();
-        var leftJson = new JSONObject();
+        //var leftJson = new JSONObject();
         var rightJson = new JSONObject();
 
         // Loop through all joint IDs once
@@ -30,7 +30,7 @@ public class HandToROS : MonoBehaviour
             if (id == XRHandJointID.Invalid || id == XRHandJointID.EndMarker)
                 continue;
 
-            // LEFT HAND
+            /* LEFT HAND
             Pose poseLeft;
             if (visualizer.TryGetJointPose(Handedness.Left, id, out poseLeft))
             {
@@ -38,8 +38,10 @@ public class HandToROS : MonoBehaviour
                 jointObj.AddField("x", poseLeft.position.x);
                 jointObj.AddField("y", poseLeft.position.y);
                 jointObj.AddField("z", poseLeft.position.z);
+
                 leftJson.AddField(id.ToString(), jointObj);
             }
+            */
 
             // RIGHT HAND
             Pose poseRight;
@@ -49,12 +51,18 @@ public class HandToROS : MonoBehaviour
                 jointObj.AddField("x", poseRight.position.x);
                 jointObj.AddField("y", poseRight.position.y);
                 jointObj.AddField("z", poseRight.position.z);
+
+                jointObj.AddField("qx", poseRight.rotation.x);
+                jointObj.AddField("qy", poseRight.rotation.y);
+                jointObj.AddField("qz", poseRight.rotation.z);
+                jointObj.AddField("qw", poseRight.rotation.w);
+
                 rightJson.AddField(id.ToString(), jointObj);
             }
         }
 
         // Build final JSON structure
-        rootJson.AddField("left_hand", leftJson);
+        //rootJson.AddField("left_hand", leftJson);
         rootJson.AddField("right_hand", rightJson);
 
         ros.Publish(topicName, new StringMsg(rootJson.Print()));
