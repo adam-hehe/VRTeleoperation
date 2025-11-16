@@ -7,6 +7,8 @@ a normalized openness value (0-1) for each finger of the right hand.
 
 NOTE: Ignores wrist data for now; focus is on finger openness.
 
+TODO: Calibrate angle thresholds for open/closed fingers.
+
 Assuming data is a JSON Object like this:
 "right_hand": {
     "Wrist": {
