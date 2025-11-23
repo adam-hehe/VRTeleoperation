@@ -1,5 +1,5 @@
 '''
-HandMapper.py
+angle_functions.py
 ----------------
 
 This module processes Unity XR Hands joint data (received as JSON) and computes

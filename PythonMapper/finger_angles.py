@@ -2,16 +2,25 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
 import json
-from hand_openness import compute_hand_openness
+from angle_funcions import compute_hand_openness
 
 class VRHandSubscriber(Node):
     def __init__(self):
-        super().__init__('vr_hand_subscriber')
+        super().__init__('vr_hand_angle_publisher')
         self.subscription = self.create_subscription(
             String,
             '/vr_hand_joints',
             self.callback,
-            10)
+            10
+        )
+        
+        self.publisher = self.create_publisher(
+            String,
+            '/vr_finger_angles',
+            10
+        )
+
+        self.get_logger().info("VRHand Angle Publisher started.")
 
     def callback(self, msg):
         try:
@@ -19,9 +28,13 @@ class VRHandSubscriber(Node):
             data = json.loads(msg.data)
 
             # Compute openness
-            openness = compute_hand_openness(data)
+            angles = compute_hand_openness(data)
 
-            self.get_logger().info(f"Openess: {openness}")
+            out_msg = String()
+            out_msg.data = json.dumps(angles)
+            self.publisher.publish(out_msg)
+
+            self.get_logger().info(f"Joint Angles: {angles}")
 
         except Exception as e:
             self.get_logger().error(f"Error parsing hand JSON: {e}")
