@@ -11,7 +11,7 @@
  *   - Format joint positions into a JSON dictionary
  *   - Publish the JSON string to a ROS2 topic for teleoperation or analysis
  *
- * PUBLISHED TOPIC: (TBD)
+ * PUBLISHED TOPIC:
  *   /vr_hand_joints   (std_msgs/String)
  *
  * MESSAGE FORMAT:
@@ -37,7 +37,7 @@
  *   - Assumes the ROS-TCP-Endpoint server is running in ROS2.
  */
 
- using UnityEngine;
+using UnityEngine;
 using Unity.Robotics.ROSTCPConnector;
 using RosMessageTypes.Std;
 
