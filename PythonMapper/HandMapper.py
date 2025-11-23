@@ -1,5 +1,5 @@
 '''
-hand_openness.py
+HandMapper.py
 ----------------
 
 This module processes Unity XR Hands joint data (received as JSON) and computes
@@ -30,7 +30,6 @@ Assuming data is a JSON Object like this:
 }
 '''
 
-import json
 import numpy as np
 from math import acos 
 
