@@ -1,3 +1,38 @@
+"""
+VRHand Angle Publisher Node
+---------------------------
+
+This ROS2 node subscribes to the Unity XR Hands data published on the 
+`/vr_hand_joints` topic. Unity sends a JSON string containing right-hand 
+joint positions (and wrist orientation) for every XRHand joint.
+
+This node:
+
+1. Receives the JSON-formatted hand joint data.
+2. Converts the string into a Python dictionary.
+3. Passes the joint positions into `compute_hand_openness()` 
+   (or compute_hand_angles, depending on the function implemented) 
+   to extract per-finger bending information.
+4. Publishes the processed finger angles/openness values on 
+   the `/vr_finger_angles` topic as a JSON string.
+
+Topics:
+    Subscribes to:
+        - /vr_hand_joints    (std_msgs/String)
+            Raw XR hand joint data from Unity.
+
+    Publishes to:
+        - /vr_finger_angles  (std_msgs/String)
+            Processed finger bend metrics (angles or normalized openness).
+
+Notes:
+    - This node does NOT directly control any robot hardware.
+      It only computes joint angles or openness values for later mapping 
+      to servo commands.
+    - The openness/angle logic lives in `angle_functions.py`.
+    - Only the right hand is processed.
+"""
+
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
