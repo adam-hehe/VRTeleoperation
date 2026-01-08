@@ -37,7 +37,7 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
 import json
-from angle_funcions import compute_hand_openness
+from hand_mapper.angle_functions import compute_hand_openness
 
 class VRHandSubscriber(Node):
     def __init__(self):
