@@ -86,8 +86,8 @@ def finger_openness(hand, names):
     total_bend = pip + dip  # closed finger = large bend
 
     # TODO: calibrate these values
-    CLOSED = 1.0
-    OPEN   = 0.0   
+    CLOSED = 1.2
+    OPEN   = 0.2   
 
     openness = normalize((CLOSED - total_bend), (CLOSED - OPEN), (CLOSED - CLOSED))
     return float(openness)
