@@ -83,13 +83,18 @@ def finger_openness(hand, names):
     pip = joint_angle(prox, inter, dist)
     dip = joint_angle(inter, dist, tip)
 
-    total_bend = pip + dip  # closed finger = large bend
+    pip_bend = abs(np.pi - pip)
+    dip_bend = abs(np.pi - dip)
 
-    # TODO: calibrate these values
-    CLOSED = 2.4
-    OPEN   = 0.2   
+    total_bend = pip_bend + dip_bend  # closed finger = large bend
 
-    openness = normalize((CLOSED - total_bend), (CLOSED - OPEN), (CLOSED - CLOSED))
+    print("pip", pip_bend, "dip", dip_bend, "sum", total_bend)
+
+    # Ccalibrate these values
+    CLOSED = 3.0
+    OPEN   = 0.1
+
+    openness = 1 - normalize(total_bend, OPEN, CLOSED)
     return float(openness)
 
 def compute_hand_openness(json_data):
