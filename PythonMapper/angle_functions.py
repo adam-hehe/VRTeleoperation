@@ -5,10 +5,6 @@ angle_functions.py
 This module processes Unity XR Hands joint data (received as JSON) and computes
 a normalized openness value (0-1) for each finger of the right hand.
 
-NOTE: Ignores wrist data for now; focus is on finger openness.
-
-TODO: Calibrate angle thresholds for open/closed fingers.
-
 Assuming data is a JSON Object like this:
 "right_hand": {
     "Wrist": {
@@ -88,7 +84,10 @@ def finger_openness(hand, names):
 
     total_bend = pip_bend + dip_bend  # closed finger = large bend
 
-    # Calibraed these values
+    # Calibrate finger:
+    # print("pip", pip, "dip", dip, "sum", total_bend)
+
+    # Calibrated these values
     CLOSED = 3.0
     OPEN   = 0.1
 
@@ -102,11 +101,12 @@ def thumb_openness(hand):
     # Distance from thumb tip to palm/wrist
     dist = np.linalg.norm(thumb_tip - wrist)
 
-    print("thumb dist", dist)
+    # Calibrate thumb:
+    # print("thumb dist", dist)
 
-    # TODO: Tune these by printing dist
-    OPEN_DIST = 0.10
-    CLOSED_DIST = 0.03 
+    # NOTE: OPEN_DIST 0.138 may be more accurate
+    OPEN_DIST = 0.14
+    CLOSED_DIST = 0.1 
 
     openness = normalize(dist, CLOSED_DIST, OPEN_DIST)
     return float(np.clip(openness, 0.0, 1.0))
