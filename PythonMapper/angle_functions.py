@@ -5,10 +5,6 @@ angle_functions.py
 This module processes Unity XR Hands joint data (received as JSON) and computes
 a normalized openness value (0-1) for each finger of the right hand.
 
-NOTE: Ignores wrist data for now; focus is on finger openness.
-
-TODO: Calibrate angle thresholds for open/closed fingers.
-
 Assuming data is a JSON Object like this:
 "right_hand": {
     "Wrist": {
@@ -88,14 +84,32 @@ def finger_openness(hand, names):
 
     total_bend = pip_bend + dip_bend  # closed finger = large bend
 
-    print("pip", pip_bend, "dip", dip_bend, "sum", total_bend)
+    # Calibrate finger:
+    # print("pip", pip, "dip", dip, "sum", total_bend)
 
-    # Ccalibrate these values
+    # Calibrated these values
     CLOSED = 3.0
     OPEN   = 0.1
 
     openness = 1 - normalize(total_bend, OPEN, CLOSED)
-    return float(openness)
+    return float(np.clip(openness, 0.0, 1.0))
+    
+def thumb_openness(hand):
+    wrist = vec(hand["Wrist"])
+    thumb_tip = vec(hand["ThumbTip"])
+
+    # Distance from thumb tip to palm/wrist
+    dist = np.linalg.norm(thumb_tip - wrist)
+
+    # Calibrate thumb:
+    # print("thumb dist", dist)
+
+    # NOTE: OPEN_DIST 0.138 may be more accurate
+    OPEN_DIST = 0.14
+    CLOSED_DIST = 0.1 
+
+    openness = normalize(dist, CLOSED_DIST, OPEN_DIST)
+    return float(np.clip(openness, 0.0, 1.0))
 
 def compute_hand_openness(json_data):
     """
@@ -115,12 +129,8 @@ def compute_hand_openness(json_data):
     # Thumb is special (only 3 joints)
     THUMB = ("ThumbProximal", "ThumbDistal", "ThumbTip")
     
-    # Approximate thumb openness using angle between proximal–distal–tip
-    thumb_angle = joint_angle(hand[THUMB[0]], hand[THUMB[1]], hand[THUMB[2]])
-    thumb_open = normalize(thumb_angle, 0.2, 1.2)  # tunable
-
     return {
-        "thumb":  thumb_open,
+        "thumb":  thumb_openness(hand),
         "index":  finger_openness(hand, INDEX),
         "middle": finger_openness(hand, MIDDLE),
         "ring":   finger_openness(hand, RING),
