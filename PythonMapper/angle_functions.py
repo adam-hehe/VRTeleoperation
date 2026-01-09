@@ -88,14 +88,28 @@ def finger_openness(hand, names):
 
     total_bend = pip_bend + dip_bend  # closed finger = large bend
 
-    print("pip", pip_bend, "dip", dip_bend, "sum", total_bend)
-
-    # Ccalibrate these values
+    # Calibraed these values
     CLOSED = 3.0
     OPEN   = 0.1
 
     openness = 1 - normalize(total_bend, OPEN, CLOSED)
-    return float(openness)
+    return float(np.clip(openness, 0.0, 1.0))
+    
+def thumb_openness(hand):
+    wrist = vec(hand["Wrist"])
+    thumb_tip = vec(hand["ThumbTip"])
+
+    # Distance from thumb tip to palm/wrist
+    dist = np.linalg.norm(thumb_tip - wrist)
+
+    print("thumb dist", dist)
+
+    # TODO: Tune these by printing dist
+    OPEN_DIST = 0.10
+    CLOSED_DIST = 0.03 
+
+    openness = normalize(dist, CLOSED_DIST, OPEN_DIST)
+    return float(np.clip(openness, 0.0, 1.0))
 
 def compute_hand_openness(json_data):
     """
@@ -115,12 +129,8 @@ def compute_hand_openness(json_data):
     # Thumb is special (only 3 joints)
     THUMB = ("ThumbProximal", "ThumbDistal", "ThumbTip")
     
-    # Approximate thumb openness using angle between proximal–distal–tip
-    thumb_angle = joint_angle(hand[THUMB[0]], hand[THUMB[1]], hand[THUMB[2]])
-    thumb_open = normalize(thumb_angle, 0.2, 1.2)  # tunable
-
     return {
-        "thumb":  thumb_open,
+        "thumb":  thumb_openness(hand),
         "index":  finger_openness(hand, INDEX),
         "middle": finger_openness(hand, MIDDLE),
         "ring":   finger_openness(hand, RING),
