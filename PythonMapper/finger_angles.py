@@ -36,6 +36,7 @@ Notes:
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
+from std_msgs.msg import Float32MultiArray
 import json
 from hand_mapper.angle_functions import compute_hand_openness
 
@@ -50,7 +51,7 @@ class VRHandSubscriber(Node):
         )
         
         self.publisher = self.create_publisher(
-            String,
+            Float32MultiArray,
             '/vr_finger_angles',
             10
         )
@@ -65,8 +66,8 @@ class VRHandSubscriber(Node):
             # Compute openness
             angles = compute_hand_openness(data)
 
-            out_msg = String()
-            out_msg.data = json.dumps(angles)
+            out_msg = Float32MultiArray()
+            out_msg.data = angles
             self.publisher.publish(out_msg)
 
             self.get_logger().info(f"Joint Angles: {angles}")
