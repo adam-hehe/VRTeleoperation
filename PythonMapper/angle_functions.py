@@ -113,26 +113,23 @@ def thumb_openness(hand):
 
 def compute_hand_openness(json_data):
     """
-    Main function: extract openness of all fingers
+    Returns: [thumb, index, middle, ring, little] ∈ [0,1]^5
     """
     if "right_hand" not in json_data:
         raise ValueError("JSON has no 'right_hand' field")
 
     hand = json_data["right_hand"]
 
-    # Finger joint names in XRHands ordering
-    INDEX = ("IndexProximal", "IndexIntermediate", "IndexDistal", "IndexTip")
+    INDEX  = ("IndexProximal", "IndexIntermediate", "IndexDistal", "IndexTip")
     MIDDLE = ("MiddleProximal", "MiddleIntermediate", "MiddleDistal", "MiddleTip")
-    RING = ("RingProximal", "RingIntermediate", "RingDistal", "RingTip")
+    RING   = ("RingProximal", "RingIntermediate", "RingDistal", "RingTip")
     LITTLE = ("LittleProximal", "LittleIntermediate", "LittleDistal", "LittleTip")
 
-    # Thumb is special (only 3 joints)
-    THUMB = ("ThumbProximal", "ThumbDistal", "ThumbTip")
-    
-    return {
-        "thumb":  thumb_openness(hand),
-        "index":  finger_openness(hand, INDEX),
-        "middle": finger_openness(hand, MIDDLE),
-        "ring":   finger_openness(hand, RING),
-        "little": finger_openness(hand, LITTLE)
+    return [
+        thumb_openness(hand),
+        finger_openness(hand, INDEX),
+        finger_openness(hand, MIDDLE),
+        finger_openness(hand, RING),
+        finger_openness(hand, LITTLE),
+    ]
     }
