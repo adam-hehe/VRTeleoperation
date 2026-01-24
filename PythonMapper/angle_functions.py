@@ -125,11 +125,11 @@ def compute_hand_openness(json_data):
     RING   = ("RingProximal", "RingIntermediate", "RingDistal", "RingTip")
     LITTLE = ("LittleProximal", "LittleIntermediate", "LittleDistal", "LittleTip")
 
-    return [
+    return np.array([
         thumb_openness(hand),
         finger_openness(hand, INDEX),
         finger_openness(hand, MIDDLE),
         finger_openness(hand, RING),
         finger_openness(hand, LITTLE),
-    ]
-    }
+    ], dtype=float)
+}
