@@ -14,7 +14,7 @@ This node:
    (or compute_hand_angles, depending on the function implemented) 
    to extract per-finger bending information.
 4. Publishes the processed finger angles/openness values on 
-   the `/vr_finger_angles` topic as a JSON string.
+   the `/vr_finger_angles` topic as a Float32MultiArray.
 
 Topics:
     Subscribes to:
