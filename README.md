@@ -55,23 +55,6 @@ This bidirectional loop enables the operator to both **control** the robot and *
 
 ---
 
-## Design Philosophy
-
-- **Separation of Concerns**
-  - Unity handles perception and visualization.
-  - ROS 2 handles computation, mapping, and control logic.
-  - The glove acts purely as a haptic output device.
-
-- **Safety First**
-  - All haptic actuation is bounded by software limits.
-  - Resistance is controlled via force mapping, not rigid position enforcement.
-
-- **Research-Oriented**
-  - Emphasizes explainability, modularity, and extensibility.
-  - Intended as a platform for experimenting with teleoperation and haptics.
-
----
-
 ## Current Status
 
 - XR hand tracking and visualization implemented in Unity.
