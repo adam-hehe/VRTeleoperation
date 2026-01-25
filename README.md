@@ -1,28 +1,91 @@
-# VR Hand Tracking → ROS2 Teleoperation Pipeline 🖐️
+# VR Teleoperation with Haptic Feedback
 
-This repository streams real-time VR hand joint data from Unity (XR Hands) into ROS2, computes finger bending / openness, and makes it available for robotic teleoperation.
+This project implements a **VR-based teleoperation pipeline** that allows a human operator to control a robotic hand using natural hand motions captured in VR, while receiving **force-based haptic feedback** through a wearable glove.
 
-**Overview**
-- **Unity**: `XR Hands` captures the right hand joint poses and publishes a JSON dictionary to ROS via the Unity `ROS-TCP-Connector`.
-- **ROS2 (Python)**: a subscriber parses the `/vr_hand_joints` JSON, computes per-finger openness (normalized 0–1), and (optionally) republishes the result on `/finger_openness` for teleoperation consumers.
+The system is designed to explore **human–robot interaction (HRI)**, **teleoperation**, and **haptic feedback**, using a modular architecture built on **Unity, ROS 2, and custom hardware drivers**.
 
-This provides a simple end-to-end VR → ROS teleoperation pipeline.
-
-**Key features**
-- **Real-time joint streaming** from Unity using `VRTeleoperation/Unity/newHandPublisher.cs`.
-- **Finger bending → openness** computation in Python (`VRTeleoperation/PythonMapper/HandMapper.py`).
-- **ROS2 subscriber** example in `VRTeleoperation/ROS_Subscriber/finger_angles.py`.
-
-**Architecture (high level)**
-- Unity XR Hands → publishes `std_msgs/String` JSON on `/vr_hand_joints`.
-- ROS2 Python node subscribes to `/vr_hand_joints`, computes openness, and makes a compact openness object available for robots or logging.
-
-
-ROS data being sent from unity looks like:
 ---
-data: '{"right_hand":{"Wrist":{"x":0.0776087,"y":0.877211,"z":0.326393932,"qx":0.141008914,"qy":0.421606421,"qz":0.242409468,"qw":-0.86...'
+
+## System Overview
+
+The teleoperation pipeline is structured as a closed-loop system:
+
+Human Hand
+↓
+VR Headset (Meta Quest + XR Hands)
+↓
+Unity (Hand Tracking & Visualization)
+↓
+ROS 2 (Hand Mapping & Control)
+↓
+Robotic Hand / Simulation
+↓
+Contact & Force Feedback
+↓
+ROS 2
+↓
+Haptic Glove (Force Feedback)
+↓
+Human Hand
+
+
+This bidirectional loop enables the operator to both **control** the robot and **feel interactions** with the environment.
+
 ---
-data: '{"right_hand":{"Wrist":{"x":0.0776087,"y":0.877211,"z":0.326393932,"qx":0.141008914,"qy":0.421606421,"qz":0.242409468,"qw":-0.86...'
+
+## Key Features
+
+- **Natural Hand Tracking**
+  - Uses Unity XR Hands (OpenXR) to capture per-joint hand pose data.
+  - Visualizes tracked joints and hand meshes in real time.
+
+- **ROS 2 Integration**
+  - Publishes hand joint data from Unity to ROS 2.
+  - Computes finger bend metrics and contact forces.
+  - Designed for clean separation between perception, control, and hardware.
+
+- **Haptic Glove Feedback**
+  - Provides per-finger resistance based on robot contact forces.
+  - Implements a *virtual hard-stop* model: fingers move freely until contact is detected.
+  - Force magnitude is mapped to motor resistance rather than absolute position.
+
+- **Hardware-Agnostic Design**
+  - Initial prototypes use micro servos for tendon-based resistance.
+  - Architecture supports future upgrades to current-controlled motors for true force feedback.
+
 ---
-data: '{"right_hand":{"Wrist":{"x":0.0776087,"y":0.877211,"z":0.326393932,"qx":0.141008914,"qy":0.421606421,"qz":0.242409468,"qw":-0.86...'
+
+## Design Philosophy
+
+- **Separation of Concerns**
+  - Unity handles perception and visualization.
+  - ROS 2 handles computation, mapping, and control logic.
+  - The glove acts purely as a haptic output device.
+
+- **Safety First**
+  - All haptic actuation is bounded by software limits.
+  - Resistance is controlled via force mapping, not rigid position enforcement.
+
+- **Research-Oriented**
+  - Emphasizes explainability, modularity, and extensibility.
+  - Intended as a platform for experimenting with teleoperation and haptics.
+
 ---
+
+## Current Status
+
+- XR hand tracking and visualization implemented in Unity.
+- ROS 2 pipeline for joint data and finger metrics in progress.
+- Haptic glove driver supports per-finger force-based resistance via serial control.
+- Ongoing work on force tuning, safety limits, and hardware refinement.
+
+---
+
+## Future Work
+
+- Upgrade glove actuators to current-controlled motors for smoother force feedback.
+- Integrate physics-based contact forces from simulation environments.
+- Add calibration routines for different hand sizes.
+- Explore bilateral control stability and latency effects.
+
+
