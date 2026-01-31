@@ -2,13 +2,22 @@
 
 This document describes the high-level architecture of the VR Teleoperation and Haptic Glove project, including data flow, core components, and planned feedback loops.
 
----
-
 ## Overview
 
-The system is designed as a bidirectional teleoperation pipeline that allows a user to control a robotic hand using VR hand tracking while eventually receiving haptic feedback from the robot’s interactions with the environment.
-
+The system is designed as a bidirectional teleoperation pipeline that allows a user to control a robotic hand using VR hand tracking while eventually receiving haptic feedback from the robot’s interactions with the environment. 
 At a high level, the system follows this flow:
+
+1. Unity (Hand Tracking & Processing) 
+
+2. ROS2 (Networking and Control Logic) 
+
+3. Robotic Hand / Simulation (Servos & Contacts) 
+
+4. ROS2 (Force / Contact Data) 
+
+5. Haptic Glove (Feedback)
+
+--- 
 
 ## Core Components
 
