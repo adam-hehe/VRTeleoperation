@@ -1,74 +1,33 @@
-# VR Teleoperation with Haptic Feedback
+# VR Teleoperation and Haptic Glove
 
-This project implements a **VR-based teleoperation pipeline** that allows a human operator to control a robotic hand using natural hand motions captured in VR, while receiving **force-based haptic feedback** through a wearable glove.
-
-The system is designed to explore **human–robot interaction (HRI)**, **teleoperation**, and **haptic feedback**, using a modular architecture built on **Unity, ROS 2, and custom hardware drivers**.
+This project explores VR-based teleoperation of a robotic hand using real-time hand tracking and haptic feedback. A Meta Quest headset is used to capture human hand motion in Unity, which is streamed through ROS2 to control a physical robotic hand. The system is designed to eventually provide force and contact feedback to a wearable haptic glove, enabling closed-loop interaction.
 
 ---
 
-## System Overview
+## Documentation
 
-The teleoperation pipeline is structured as a closed-loop system:
+Detailed documentation is located in the `docs/` directory:
 
-Human Hand
-↓
-VR Headset (Meta Quest + XR Hands)
-↓
-Unity (Hand Tracking & Visualization)
-↓
-ROS 2 (Hand Mapping & Control)
-↓
-Robotic Hand / Simulation
-↓
-Contact & Force Feedback
-↓
-ROS 2
-↓
-Haptic Glove (Force Feedback)
-↓
-Human Hand
-
-
-This bidirectional loop enables the operator to both **control** the robot and **feel interactions** with the environment.
-
----
-
-## Key Features
-
-- **Natural Hand Tracking**
-  - Uses Unity XR Hands (OpenXR) to capture per-joint hand pose data.
-  - Visualizes tracked joints and hand meshes in real time.
-
-- **ROS 2 Integration**
-  - Publishes hand joint data from Unity to ROS 2.
-  - Computes finger bend metrics and contact forces.
-  - Designed for clean separation between perception, control, and hardware.
-
-- **Haptic Glove Feedback**
-  - Provides per-finger resistance based on robot contact forces.
-  - Implements a *virtual hard-stop* model: fingers move freely until contact is detected.
-  - Force magnitude is mapped to motor resistance rather than absolute position.
-
-- **Hardware-Agnostic Design**
-  - Initial prototypes use micro servos for tendon-based resistance.
-  - Architecture supports future upgrades to current-controlled motors for true force feedback.
+- **architecture.md** — System architecture and data flow  
+- **setup.md** — Startup and runtime instructions  
+- **simulation.md** — TBD
+- **haptics.md** - TBD
 
 ---
 
 ## Current Status
 
-- XR hand tracking and visualization implemented in Unity.
-- ROS 2 pipeline for joint data and finger metrics in progress.
-- Haptic glove driver supports per-finger force-based resistance via serial control.
-- Ongoing work on force tuning, safety limits, and hardware refinement.
+- VR hand tracking via Meta Quest XR Hands is functional  
+- Unity publishes joint and finger data to ROS2  
+- Finger bend angles are computed and published in ROS2  
+- Haptic glove redesign and force-feedback integration are in progress  
 
 ---
 
-## Future Work
+## Technologies Used
 
-- Upgrade glove actuators to current-controlled motors for smoother force feedback.
-- Integrate physics-based contact forces from simulation environments.
-- Add calibration routines for different hand sizes.
-- Explore bilateral control stability and latency effects.
-
-
+- Meta Quest / XR Hands  
+- Unity  
+- ROS2  
+- Python  
+- Custom robotic hand hardware  
