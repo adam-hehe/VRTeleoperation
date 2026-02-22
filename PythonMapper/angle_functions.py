@@ -132,4 +132,4 @@ def compute_hand_openness(json_data):
         finger_openness(hand, RING),
         finger_openness(hand, LITTLE),
     ], dtype=float)
-}
+
