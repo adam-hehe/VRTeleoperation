@@ -156,6 +156,9 @@ public class HandToROS : MonoBehaviour
         }
 
         rootJson.AddField("right_hand", rightJson);
-        ros.Publish(topicName, new StringMsg(rootJson.Print()));
+
+        // if(TeleopController.TeleopEnabled) {
+            ros.Publish(topicName, new StringMsg(rootJson.Print()));
+        // }
     }
 }
