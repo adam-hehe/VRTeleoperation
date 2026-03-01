@@ -28,7 +28,7 @@ import roslibpy
 # --- Configuration of Parameters --- #
 WSL_IP = '172.25.52.251' # Put your WSL2/ros_tcp_endpoint IP
 WSL_PORT = 10000 # Put your ros_tcp_endpoint port
-XML_PATH = "/Users/LoganLi/Triton_Droids/amazing_ws_mac/AmazingHand/Demo/AHSimulation/AHSimulation/AH_Right/mjcf/amazing_hand_wrapper.xml" # Put your path of XML file location
+XML_PATH = "/Users/adamconnor/Desktop/Projects/VRTeleoperation/Simulation/amazing_hand_wrapper.xml" # Put your path of XML file location
 
 VR_HAND_POSES_TOPIC = '/vr_hand_joints' # std_msgs/String(JSON) = contains wrist pose, along with other raw joint poses that are not directly used
 FINGER_BEND_PERC_TOPIC = '/vr_finger_angles' # std_msgs/Float32MultiArray = 5 floats in [0,1] in order of [thumb, index, middle, ring, pinky]
@@ -144,7 +144,7 @@ except Exception:
     wrist_mocap_id = None
 
 def update_wrist_pose(payload: str):
-    # Extract wrist pose data
+    # Extract wrist pose data 
     if wrist_mocap_id is None:
         return
     try: 
