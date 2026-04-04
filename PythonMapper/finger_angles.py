@@ -22,7 +22,7 @@ Topics:
             Raw XR hand joint data from Unity.
 
     Publishes to:
-        - /vr_finger_angles  (std_msgs/String)
+        - /vr_finger_angles  (std_msgs/Float32MultiArray)
             Processed finger bend metrics (angles or normalized openness).
 
 Notes:
@@ -33,23 +33,26 @@ Notes:
     - Only the right hand is processed.
 """
 
+import json
+
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String
-from std_msgs.msg import Float32MultiArray
-import json
+from std_msgs.msg import String, Float32MultiArray
+
 from hand_mapper.angle_functions import compute_hand_openness
+
 
 class VRHandSubscriber(Node):
     def __init__(self):
         super().__init__('vr_hand_angle_publisher')
+
         self.subscription = self.create_subscription(
             String,
             '/vr_hand_joints',
             self.callback,
             10
         )
-        
+
         self.publisher = self.create_publisher(
             Float32MultiArray,
             '/vr_finger_angles',
@@ -60,11 +63,14 @@ class VRHandSubscriber(Node):
 
     def callback(self, msg):
         try:
-            # Convert JSON string → Python dict
+            # Convert JSON string -> Python dict
             data = json.loads(msg.data)
 
             # Compute openness
             angles = compute_hand_openness(data)
+
+            # Ensure ROS gets plain Python floats, not numpy types
+            angles = [float(x) for x in angles]
 
             out_msg = Float32MultiArray()
             out_msg.data = angles
@@ -73,7 +79,8 @@ class VRHandSubscriber(Node):
             self.get_logger().info(f"Joint Angles: {angles}")
 
         except Exception as e:
-            self.get_logger().error(f"Error parsing hand JSON: {e}")
+            self.get_logger().error(f"Error processing hand data: {e}")
+
 
 def main(args=None):
     rclpy.init(args=args)
@@ -81,6 +88,7 @@ def main(args=None):
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
