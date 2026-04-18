@@ -7,7 +7,7 @@ public class CameraDisplayManager : MonoBehaviour
     public CameraType cameraType;
 
     public RawImage display;
-    public string rosTopic = "/camera/image_raw";
+    public string rosTopic = "/camera/image/compressed";
 
     private ICameraSource cameraSource;
 
