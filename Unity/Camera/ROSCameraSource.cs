@@ -8,6 +8,8 @@ public class ROSCameraSource : ICameraSource
     private Texture2D texture;
     private string topic;
 
+    public bool IsReceiving { get; private set; }
+
     public ROSCameraSource(string topicName)
     {
         topic = topicName;
@@ -15,26 +17,19 @@ public class ROSCameraSource : ICameraSource
 
     public void Initialize()
     {
+        texture = new Texture2D(2, 2); // LoadImage resizes automatically
         ros = ROSConnection.GetOrCreateInstance();
-        ros.Subscribe<ImageMsg>(topic, ImageCallback);
+        ros.Subscribe<CompressedImageMsg>(topic, OnImageReceived);
     }
 
-    private void ImageCallback(ImageMsg msg)
+    private void OnImageReceived(CompressedImageMsg msg)
     {
-        if (texture == null)
-            texture = new Texture2D((int)msg.width, (int)msg.height, TextureFormat.RGB24, false);
-
-        texture.LoadRawTextureData(msg.data);
-        texture.Apply();
+        // Decodes JPEG in-place; resizes texture to match image dimensions
+        texture.LoadImage(msg.data);
+        IsReceiving = true;
     }
 
-    public Texture GetTexture()
-    {
-        return texture;
-    }
+    public Texture GetTexture() => texture;
 
-    public void Shutdown()
-    {
-        // Optional: Unsubscribe if needed
-    }
+    public void Shutdown() { }
 }
