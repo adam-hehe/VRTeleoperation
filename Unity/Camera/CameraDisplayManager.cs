@@ -7,6 +7,8 @@ public class CameraDisplayManager : MonoBehaviour
     public CameraType cameraType;
 
     public RawImage display;
+    [Tooltip("0 = built-in webcam, 1+ = external USB cameras")]
+    public int usbDeviceIndex = 0;
     public string rosTopic = "/camera/image/compressed";
 
     private ICameraSource cameraSource;
@@ -16,7 +18,7 @@ public class CameraDisplayManager : MonoBehaviour
         switch (cameraType)
         {
             case CameraType.USB:
-                cameraSource = new USBCameraSource();
+                cameraSource = new USBCameraSource(usbDeviceIndex);
                 break;
 
             case CameraType.ROS:
