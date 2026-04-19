@@ -47,7 +47,11 @@ def joint_angle(A, B, C):
     v1 = A - B
     v2 = C - B
 
-    cosang = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
+    denom = np.linalg.norm(v1) * np.linalg.norm(v2)
+    if denom < 1e-8:
+        return np.pi  # treat degenerate case as straight (no bend)
+
+    cosang = np.dot(v1, v2) / denom
     cosang = np.clip(cosang, -1.0, 1.0)
 
     return acos(cosang)
@@ -95,20 +99,36 @@ def finger_openness(hand, names):
     return float(np.clip(openness, 0.0, 1.0))
     
 def thumb_openness(hand):
-    wrist = vec(hand["Wrist"])
-    thumb_tip = vec(hand["ThumbTip"])
+    """
+    Computes thumb openness using joint bend angles, matching the same approach
+    as finger_openness. Uses the full thumb joint chain:
+      ThumbMetacarpal → ThumbProximal → ThumbDistal → ThumbTip
 
-    # Distance from thumb tip to palm/wrist
-    dist = np.linalg.norm(thumb_tip - wrist)
+    This is more robust than wrist-to-tip distance, which varies with hand
+    orientation and saturates on different hand sizes.
+    """
+    metacarpal = hand["ThumbMetacarpal"]
+    proximal   = hand["ThumbProximal"]
+    distal     = hand["ThumbDistal"]
+    tip        = hand["ThumbTip"]
+
+    # Bend at MCP joint (metacarpal–proximal–distal)
+    mcp_angle = joint_angle(metacarpal, proximal, distal)
+    # Bend at IP joint (proximal–distal–tip)
+    ip_angle  = joint_angle(proximal, distal, tip)
+
+    mcp_bend   = abs(np.pi - mcp_angle)
+    ip_bend    = abs(np.pi - ip_angle)
+    total_bend = mcp_bend + ip_bend
 
     # Calibrate thumb:
-    # print("thumb dist", dist)
+    # print("thumb mcp_bend", mcp_bend, "ip_bend", ip_bend, "total", total_bend)
 
-    # NOTE: OPEN_DIST 0.138 may be more accurate
-    OPEN_DIST = 0.14
-    CLOSED_DIST = 0.1 
+    # Thumb bends less than fingers anatomically — max realistic total ~2.0 rad
+    CLOSED = 2.0
+    OPEN   = 0.2
 
-    openness = normalize(dist, CLOSED_DIST, OPEN_DIST)
+    openness = 1 - normalize(total_bend, OPEN, CLOSED)
     return float(np.clip(openness, 0.0, 1.0))
 
 def compute_hand_openness(json_data):

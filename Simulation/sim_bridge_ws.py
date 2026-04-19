@@ -199,6 +199,24 @@ def command_finger_motors(finger_bend_perc: List[float]):
 
     cmd_target = np.roll(cmd_target, -2)
 
+# --- Latency / Rate Tracking --- #
+_lat_recv_count = 0
+_lat_last_recv_time = None
+_lat_interval_sum = 0.0
+_LAT_LOG_INTERVAL = 50
+
+def _track_angle_arrival():
+    global _lat_recv_count, _lat_last_recv_time, _lat_interval_sum
+    now = time.time()
+    if _lat_last_recv_time is not None:
+        _lat_interval_sum += (now - _lat_last_recv_time) * 1000.0
+    _lat_last_recv_time = now
+    _lat_recv_count += 1
+    if _lat_recv_count % _LAT_LOG_INTERVAL == 0 and _lat_recv_count > 1:
+        avg_interval = _lat_interval_sum / (_lat_recv_count - 1)
+        avg_rate = 1000.0 / avg_interval if avg_interval > 0 else 0.0
+        print(f"[sim_bridge latency] /vr_finger_angles: {avg_rate:.1f}Hz (avg interval: {avg_interval:.1f}ms)")
+
 # --- Fingertip Forces --- #
 FINGERTIP_SITES = ["tip1","tip2","tip3","tip4"] # tip1 = index, tip2 = middle, tip3 = ring, tip4 = thumb
 fingertip_site_ids = [m.site(site).id for site in FINGERTIP_SITES]
@@ -254,6 +272,7 @@ def update_wrist_pose_callback(msg):
         update_wrist_pose(data_poses_json_str)
 
 def update_motor_cmds_callback(msg):
+    _track_angle_arrival()
     data_finger_bend_perc_list = msg.get('data', [])
     if isinstance(data_finger_bend_perc_list, list):
         command_finger_motors(data_finger_bend_perc_list)

@@ -34,12 +34,15 @@ Notes:
 """
 
 import json
+import time
 
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String, Float32MultiArray
 
 from hand_mapper.angle_functions import compute_hand_openness
+
+_LOG_INTERVAL = 30  # print latency stats every N messages
 
 
 class VRHandSubscriber(Node):
@@ -59,24 +62,71 @@ class VRHandSubscriber(Node):
             10
         )
 
+        self._msg_count = 0
+        self._processing_sum = 0.0   # ms
+        self._unity_ros_sum = 0.0    # ms — only valid with NTP clock sync
+        self._unity_ros_count = 0
+        self._last_recv_wall = None
+        self._interval_sum = 0.0     # ms between consecutive messages
+
         self.get_logger().info("VRHand Angle Publisher started.")
 
     def callback(self, msg):
+        t_recv_wall = time.time()           # wall clock for cross-machine delta
+        t_recv_perf = time.perf_counter()   # high-res for processing time
+
         try:
-            # Convert JSON string -> Python dict
             data = json.loads(msg.data)
 
-            # Compute openness
-            angles = compute_hand_openness(data)
+            # --- Unity→ROS latency (requires NTP sync between PC and ROS machine) ---
+            t_unity_ms = data.get("t")
+            if t_unity_ms is not None:
+                unity_to_ros_ms = t_recv_wall * 1000.0 - t_unity_ms
+                self._unity_ros_sum += unity_to_ros_ms
+                self._unity_ros_count += 1
 
-            # Ensure ROS gets plain Python floats, not numpy types
+            # --- Inter-message interval ---
+            if self._last_recv_wall is not None:
+                self._interval_sum += (t_recv_wall - self._last_recv_wall) * 1000.0
+            self._last_recv_wall = t_recv_wall
+
+            # --- Compute and publish ---
+            angles = compute_hand_openness(data)
             angles = [float(x) for x in angles]
 
             out_msg = Float32MultiArray()
             out_msg.data = angles
             self.publisher.publish(out_msg)
 
-            self.get_logger().info(f"Joint Angles: {angles}")
+            # --- Processing time ---
+            processing_ms = (time.perf_counter() - t_recv_perf) * 1000.0
+            self._processing_sum += processing_ms
+            self._msg_count += 1
+
+            # --- Periodic latency log ---
+            if self._msg_count % _LOG_INTERVAL == 0:
+                avg_processing = self._processing_sum / _LOG_INTERVAL
+                intervals = self._msg_count - 1
+                avg_rate = (1000.0 / (self._interval_sum / intervals)) if intervals > 0 else 0.0
+
+                if self._unity_ros_count > 0:
+                    avg_unity_ros = self._unity_ros_sum / self._unity_ros_count
+                    self.get_logger().info(
+                        f"[latency] Unity→ROS: {avg_unity_ros:.1f}ms | "
+                        f"processing: {avg_processing:.2f}ms | "
+                        f"rate: {avg_rate:.1f}Hz"
+                    )
+                else:
+                    self.get_logger().info(
+                        f"[latency] processing: {avg_processing:.2f}ms | "
+                        f"rate: {avg_rate:.1f}Hz  (add 't' field to Unity JSON for cross-machine latency)"
+                    )
+
+                # Reset accumulators each window
+                self._processing_sum = 0.0
+                self._unity_ros_sum = 0.0
+                self._unity_ros_count = 0
+                self._interval_sum = 0.0
 
         except Exception as e:
             self.get_logger().error(f"Error processing hand data: {e}")
