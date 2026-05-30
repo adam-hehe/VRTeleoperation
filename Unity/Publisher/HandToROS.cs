@@ -29,6 +29,11 @@ class JSONObject
         fields[name] = value.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
     }
 
+    public void AddField(string name, long value)
+    {
+        fields[name] = value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    }
+
     public void AddField(string name, JSONObject obj)
     {
         fields[name] = obj.Print();
@@ -156,6 +161,7 @@ public class HandToROS : MonoBehaviour
         }
 
         rootJson.AddField("right_hand", rightJson);
+        rootJson.AddField("t", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
 
         // if(TeleopController.TeleopEnabled) {
             ros.Publish(topicName, new StringMsg(rootJson.Print()));
