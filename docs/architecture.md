@@ -58,11 +58,14 @@ Responsibilities:
 - Manage topics and message types for teleoperation
 - Route force and contact data back toward the haptic system
 
-Typical topics include:
-- `/vr_hand_joints`
-- `/vr_finger_angles`
-- `/robot_hand_commands`
-- `/robot_contact_forces` (planned)
+Topics:
+
+| Topic | Type | Publisher → Subscriber | Contents |
+|---|---|---|---|
+| `/vr_hand_joints` | `std_msgs/String` | Unity → `finger_angles`, sim | JSON: right-hand joint positions, wrist pose, timestamp |
+| `/vr_finger_angles` | `std_msgs/Float32MultiArray` | `finger_angles` → sim / hardware | `[thumb, index, middle, ring, little]`, 0 = closed, 1 = open |
+| `/amazing_hand/finger_forces` | `std_msgs/Float32MultiArray` | sim / hardware → (haptics) | `[F_index, F_middle, F_ring, F_thumb]` in N (hardware values are approximate) |
+| `/camera/image/compressed` | `sensor_msgs/CompressedImage` | `camera_publisher` → Unity | JPEG frames |
 
 ROS2 enables modular development and allows simulation, hardware control, and haptics to evolve independently.
 
@@ -117,3 +120,30 @@ Later iterations may include:
 - Directional or impedance-based cues
 
 ---
+
+## Repository Layout
+
+```
+VRTeleoperation/
+├── PythonMapper/
+│   └── hand_mapper/              # ROS 2 ament_python package
+│       ├── hand_mapper/
+│       │   ├── finger_angles.py      # /vr_hand_joints → /vr_finger_angles
+│       │   ├── angle_functions.py    # finger openness math
+│       │   ├── camera_publisher.py   # USB webcam → /camera/image/compressed
+│       │   └── ah_hardware_driver.py # /vr_finger_angles → SCS0009 servos
+│       └── launch/
+│           ├── teleoperation.launch.py  # camera_publisher + finger_angles
+│           └── hardware.launch.py       # finger_angles + ah_hardware_driver
+├── Simulation/
+│   ├── sim_bridge_ws.py          # MuJoCo sim + rosbridge client
+│   └── *.xml                     # MuJoCo model (AmazingHand + scene)
+├── Unity/                        # C# scripts (reference; full project published separately)
+│   ├── Publisher/HandToROS.cs    # XR Hands → /vr_hand_joints
+│   ├── Camera/                   # ROS / USB camera display in VR
+│   ├── Visualizer/               # XR Hands joint visualization
+│   └── TeleopController.cs       # in-VR ON/OFF button
+└── docs/
+```
+
+The loose `PythonMapper/*.py` files are older copies of the modules in `PythonMapper/hand_mapper/hand_mapper/`. Use the package versions.
