@@ -1,1 +1,4 @@
 .venv
+
+# Local reference copy of Unity scripts (project lives in VRTeleoperation-Unity)
+/Unity/

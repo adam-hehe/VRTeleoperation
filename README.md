@@ -15,7 +15,7 @@ Meta Quest (XR Hands) ──Link──► Unity ──/vr_hand_joints──► R
 Full instructions are in [docs/setup.md](docs/setup.md). In short:
 
 1. **Build a ROS 2 workspace** (Ubuntu / WSL2) with `ROS-TCP-Endpoint` and this repo's `PythonMapper/hand_mapper` package.
-2. **Download the Unity project** *(link coming soon)* and set **Robotics → ROS Settings → ROS IP Address** to your ROS machine's IP.
+2. **Clone the Unity project** from [VRTeleoperation-Unity](https://github.com/adam-hehe/VRTeleoperation-Unity), open it in Unity 6000.3.10f1, and set **Robotics → ROS Settings → ROS IP Address** to your ROS machine's IP.
 3. **Run:**
    ```bash
    ros2 run ros_tcp_endpoint default_server_endpoint --ros-args -p ROS_IP:=<ROS machine IP>

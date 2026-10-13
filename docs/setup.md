@@ -16,7 +16,7 @@ Meta Quest ──Link──► Unity (HandToROS) ──/vr_hand_joints──► 
 
 **Software**
 - [Meta Horizon Link](https://www.meta.com/help/quest/articles/headsets-and-accessories/oculus-rift-s/install-app-for-link/) (Windows only)
-- Unity Editor (the version the published Unity project was made with)
+- [Unity Hub](https://unity.com/download) with **Unity 6000.3.10f1** (the version the Unity project uses)
 - Ubuntu with ROS 2. This guide assumes **ROS 2 Humble on Ubuntu 22.04**; substitute your distro name if it differs.
 - WSL2, if running ROS on the same Windows PC as Unity (the typical setup)
 
@@ -83,9 +83,15 @@ Use the first address (for WSL2 this is typically `172.x.x.x`). WSL2 addresses c
 
 ## 2. Unity project
 
-> **The complete Unity project will be published separately and can be downloaded directly.** *(Link coming soon.)* It comes with all packages, XR settings and scenes already configured. The `Unity/` folder in this repo holds only the C# scripts, for reference.
+The Unity project lives in its own repo, [VRTeleoperation-Unity](https://github.com/adam-hehe/VRTeleoperation-Unity). It comes with the package list, XR settings and scene already configured. Clone it on the Windows PC:
 
-After opening the downloaded project:
+```bash
+git clone https://github.com/adam-hehe/VRTeleoperation-Unity.git
+```
+
+In Unity Hub, choose **Add → Add project from disk** and select the cloned folder. The first open takes a few minutes while Unity downloads packages and builds its `Library/` folder. Then open `Assets/Scenes/SampleScene.unity`.
+
+Then:
 
 1. **Robotics → ROS Settings**: set **ROS IP Address** to the IP from step 1.4. Keep **Protocol** = `ROS2` and **Port** = `10000`.
 2. In **Meta Horizon Link** on Windows, set Link as the active **OpenXR Runtime** (Settings → General). Enable **Developer Runtime Features** (Settings → Beta), which hand tracking over Link requires.

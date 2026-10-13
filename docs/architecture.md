@@ -138,12 +138,17 @@ VRTeleoperation/
 ├── Simulation/
 │   ├── sim_bridge_ws.py          # MuJoCo sim + rosbridge client
 │   └── *.xml                     # MuJoCo model (AmazingHand + scene)
-├── Unity/                        # C# scripts (reference; full project published separately)
-│   ├── Publisher/HandToROS.cs    # XR Hands → /vr_hand_joints
-│   ├── Camera/                   # ROS / USB camera display in VR
-│   ├── Visualizer/               # XR Hands joint visualization
-│   └── TeleopController.cs       # in-VR ON/OFF button
 └── docs/
 ```
+
+The Unity project is in a separate repo, [VRTeleoperation-Unity](https://github.com/adam-hehe/VRTeleoperation-Unity). Its main scripts are in `Assets/Scripts/`:
+
+| Script | Purpose |
+|---|---|
+| `HandToROS.cs` | XR Hands → `/vr_hand_joints` |
+| `CameraDisplayManager.cs`, `ROSCameraSource.cs`, `USBCameraSource.cs`, `ICameraSource.cs` | ROS / USB camera display in VR |
+| `TeleopController.cs` | In-VR ON/OFF button |
+
+Joint visualization comes from the XR Hands `HandVisualizer` sample (`Assets/Samples/XR Hands/`).
 
 The loose `PythonMapper/*.py` files are older copies of the modules in `PythonMapper/hand_mapper/hand_mapper/`. Use the package versions.
