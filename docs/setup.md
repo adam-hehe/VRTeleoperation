@@ -30,7 +30,7 @@ Run these in your Ubuntu / WSL2 terminal.
 
 ```bash
 sudo apt update
-sudo apt install -y python3-colcon-common-extensions
+sudo apt install -y python3-colcon-common-extensions python3-numpy
 ```
 
 ### 1.2 Create a workspace and add the packages
@@ -147,3 +147,14 @@ If your values never reach 0 or 1, uncomment the `print` lines in those function
   ros2 run hand_mapper camera_publisher --ros-args -p device_index:=0
   ```
   In Unity, set `cameraType = ROS` on `CameraDisplayManager`. With WSL2, forward the webcam with `usbipd` (see [hardware.md](hardware.md#2-connect-the-hand)).
+
+  To start the camera and `finger_angles` together, use the launch file instead of running `finger_angles` separately:
+  ```bash
+  ros2 launch hand_mapper teleoperation.launch.py device_index:=0
+  ```
+
+  | Launch argument | Default |
+  |---|---|
+  | `device_index` | `0` |
+  | `jpeg_quality` | `85` |
+  | `camera_topic` | `/camera/image/compressed` |
